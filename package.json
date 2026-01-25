@@ -1,0 +1,18 @@
+{
+  "name": "bear-bear-backend",
+  "version": "1.0.0",
+  "description": "贝贝熊AI聊天机器人后端",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
