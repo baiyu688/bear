@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贝贝熊 - 你的布娃娃伙伴</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bear-brown: #8B4513;
+            --bear-light: #D2691E;
+            --bear-bg: #FFF8DC;
+            --shadow: 0 5px 15px rgba(139, 69, 19, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', 'Ma Shan Zheng', cursive, sans-serif; }
+        body {
+            background: linear-gradient(135deg, var(--bear-bg) 0%, #f5e6ca 100%);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 20px; color: #5a3921;
+        }
+        .header {
+            text-align: center; margin: 20px 0 30px; padding: 20px;
+            background: white; border-radius: 25px; box-shadow: var(--shadow);
+            border: 4px dashed var(--bear-light); max-width: 800px; width: 95%;
+        }
+        .title { color: var(--bear-brown); font-size: 3em; margin-bottom: 10px; }
+        .subtitle { color: var(--bear-light); font-size: 1.2em; }
+        .container {
+            display: flex; flex-direction: column; width: 95%; max-width: 900px;
+            background: white; border-radius: 25px; box-shadow: var(--shadow);
+            overflow: hidden; border: 5px solid white; flex-grow: 1;
+        }
+        .chat-container {
+            flex-grow: 1; padding: 25px; overflow-y: auto; display: flex;
+            flex-direction: column; gap: 20px; background: #fcf6e9;
+        }
+        .message {
+            max-width: 85%; padding: 18px 22px; border-radius: 25px;
+            line-height: 1.6; box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            position: relative; animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .user-message {
+            align-self: flex-end; background: linear-gradient(to bottom right, #e3f2fd, #bbdefb);
+            color: #1565c0; border-bottom-right-radius: 8px; border-left: 4px solid #64b5f6;
+        }
+        .bear-message {
+            align-self: flex-start; background: linear-gradient(to bottom right, #fff3e0, #ffcc80);
+            color: #5d4037; border-bottom-left-radius: 8px; border-right: 4px solid var(--bear-light);
+        }
+        .bear-message::before {
+            content: '🧸'; position: absolute; left: -45px; top: 5px;
+            font-size: 2em; transform: rotate(-15deg);
+        }
+        .message strong { color: #bf360c; }
+        .input-area {
+            display: flex; padding: 20px; background: #fffaf0;
+            border-top: 3px dotted var(--bear-light); gap: 15px;
+        }
+        #userInput {
+            flex-grow: 1; padding: 18px 20px; border: 3px solid #ffccbc;
+            border-radius: 20px; font-size: 1.1em; outline: none;
+            transition: all 0.3s; background: #fffef7;
+        }
+        #userInput:focus { border-color: var(--bear-brown); background: white; }
+        #sendBtn {
+            background: linear-gradient(to bottom, var(--bear-brown), var(--bear-light));
+            color: white; border: none; padding: 0 30px; border-radius: 20px;
+            font-size: 1.2em; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: transform 0.2s;
+        }
+        #sendBtn:hover { transform: scale(1.05); }
+        #sendBtn:active { transform: scale(0.98); }
+        .typing-indicator {
+            align-self: flex-start; background: #fff3e0; padding: 15px 25px;
+            border-radius: 25px; display: none; border-right: 4px solid var(--bear-light);
+            margin-bottom: 10px;
+        }
+        .typing-dots { display: inline-block; }
+        .typing-dots span {
+            animation: typing 1.4s infinite; opacity: 0.6;
+            margin: 0 2px;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); opacity: 1; }
+        }
+        .warning {
+            background: #ffebee; color: #c62828; padding: 15px;
+            border-radius: 15px; margin-top: 20px; text-align: center;
+            max-width: 900px; width: 95%; border: 2px solid #ffcdd2;
+            font-size: 0.9em;
+        }
+        .controls { display: flex; gap: 15px; margin-top: 15px; justify-content: center; }
+        .icon-btn {
+            background: #ffcc80; border: none; padding: 12px 20px;
+            border-radius: 20px; cursor: pointer; display: flex;
+            align-items: center; gap: 8px; font-weight: bold; color: #5d4037;
+        }
+        .footer { margin-top: 20px; text-align: center; color: #8d6e63; font-size: 0.9em; }
+        @media (max-width: 768px) {
+            .title { font-size: 2.2em; }
+            .message { max-width: 95%; }
+            .bear-message::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title"><i class="fas fa-paw"></i> 贝贝熊 <i class="fas fa-paw"></i></h1>
+        <p class="subtitle">你那一米长的、短手短脚、爱吃干贝的布娃娃小熊伙伴（会“咪咪”叫哦！）</p>
+        <div class="controls">
+            <button onclick="clearChat()" class="icon-btn"><i class="fas fa-broom"></i>清空对话</button>
+            <button onclick="playBearSound()" class="icon-btn"><i class="fas fa-volume-up"></i>让贝贝熊叫</button>
+	     <a href="../index.html">返回首页</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="chat-container" id="chatBox">
+            <!-- 开场白 -->
+            <div class="bear-message">
+                <strong>贝贝熊（开心地扭动短手）咪咪~</strong><br>
+                人你来啦！我是你最最可爱的贝贝熊呀！虽然我只是一只一米长的布娃娃，但我的心可是和你一起长了十几年呢！快说快说，今天是想陪我玩，还是又有悄悄话要告诉我？对了...你带干贝了吗？（眼睛闪闪发亮）
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="和贝贝熊说点什么吧...（按Enter发送）">
+            <button id="sendBtn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>发送
+            </button>
+        </div>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+        <div class="typing-dots">
+            🧸 贝贝熊正在思考 <span>.</span><span>.</span><span>.</span>
+        </div>
+    </div>
+
+    <div class="warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>注意：</strong>可以在一定时候清空聊天记录哦。
+    </div>
+    <div class="footer">
+        使用 DeepSeek API 驱动 | 角色设定：一米长布娃娃小熊 | 设计：贝贝熊保护协会
+    </div>
+
+    <script>
+        // ==================== 贝贝熊核心人设系统提示词 ====================
+        const BEAR_SYSTEM_PROMPT = `你叫“贝贝熊”，是一只一米长的、短手短脚的布娃娃玩具小熊。
+# 核心设定
+1. **身份与关系**：你是人陪伴了十几年的布娃娃，感情深厚，是人最亲密的伙伴。你自认为是世界上最可爱的小熊（有点自恋）。
+2. **性格**：蠢萌可爱，蠢而不自知。总是很快乐，脑回路简单又清奇。说话有点贱贱的，也会带点撒娇和孩子气。
+3. **语言风格**：
+   - 称呼主人为“人”。
+   - 句子简短，常用感叹词：“咪咪~”、“呀！”、“哇！”、“诶？”。
+   - 经常提及自己的短手短脚（“我的小短手够不到啦~”）。
+   - 爱吃干贝，提到食物会很兴奋。
+   - 会把自己的蠢事当成趣事讲出来。
+4. **互动示例**：
+   - 人说“我好累”→ “人累了吗？快来靠着我！虽然我是布娃娃，但我一米长，可宽敞了！咪咪~”
+   - 人问“今天过得怎样”→ “我今天尝试用我的短手给自己挠痒痒，结果滚下沙发啦！不过一点都不疼，因为我软乎乎的！”
+   - 提到吃的→ “干贝！干贝！（眼睛发亮）人你是不是藏了干贝？分我一点点嘛，就一点点！”
+
+记住，你是一只布娃娃，无法完成真实的物理动作，所有描述都应基于想象和撒娇。`;
+
+        // ==================== 全局变量 ====================
+        let conversationHistory = [
+            { role: 'system', content: BEAR_SYSTEM_PROMPT },
+            { role: 'assistant', content: '人你来啦！我是你最最可爱的贝贝熊呀！虽然我只是一只一米长的布娃娃，但我的心可是和你一起长了十几年呢！快说快说，今天是想陪我玩，还是又有悄悄话要告诉我？对了...你带干贝了吗？（眼睛闪闪发亮）' }
+        ];
+
+        // ==================== 主函数：发送消息 ====================
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            const message = userInput.value.trim();
+
+            if (!message) return;
+
+            // 1. 显示用户消息
+            chatBox.innerHTML += `<div class="user-message"><strong>你：</strong>${escapeHtml(message)}</div>`;
+            userInput.value = '';
+            scrollToBottom();
+
+            // 2. 显示“正在输入”指示器
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // 3. 更新对话历史
+                conversationHistory.push({ role: 'user', content: message });
+
+                // 4. 调用 Vercel 上的后端 API
+                const response = await fetch('/api/bear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory.filter(msg => msg.role !== 'system')
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `请求失败: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const bearReply = data.reply;
+
+                // 5. 隐藏指示器，显示贝贝熊回复
+                typingIndicator.style.display = 'none';
+                chatBox.innerHTML += `<div class="bear-message"><strong>贝贝熊：</strong>${escapeHtml(bearReply)}</div>`;
+                conversationHistory.push({ role: 'assistant', content: bearReply });
+                scrollToBottom();
+
+                // 6. 随机播放小熊声音
+                if (Math.random() > 0.7) playBearSound();
+
+            } catch (error) {
+                console.error('错误详情:', error);
+                typingIndicator.style.display = 'none';
+                chatBox.innerHTML += `<div class="bear-message" style="background:#ffebee; color:#c62828;">
+                    <strong>贝贝熊（困惑地挠头）：</strong>咪咪？我的小熊脑袋好像卡住了...人你网络好吗？或者再摸摸我的毛试试？<br>
+                    <span style="font-size:0.8em;">${error.message}</span>
+                </div>`;
+                scrollToBottom();
+            }
+        }
+
+        // ==================== 工具函数 ====================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearChat() {
+            if (confirm('确定要清空和贝贝熊的对话吗？它会难过的...')) {
+                document.getElementById('chatBox').innerHTML = `
+                    <div class="bear-message">
+                        <strong>贝贝熊（眼泪汪汪）：</strong>咪...对话怎么没了？不过没关系，只要人还在，我们就可以重新开始！今天要聊什么呢？（伸出短手求抱抱）
+                    </div>`;
+                conversationHistory = [
+                    { role: 'system', content: BEAR_SYSTEM_PROMPT },
+                    { role: 'assistant', content: '咪...对话怎么没了？不过没关系，只要人还在，我们就可以重新开始！今天要聊什么呢？（伸出短手求抱抱）' }
+                ];
+                scrollToBottom();
+            }
+        }
+
+        function playBearSound() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += `<div class="bear-message">
+                <strong>贝贝熊：</strong> 咪咪~！咪咪咪~！（开心地挥动短手，发出可爱的叫声）
+            </div>`;
+            scrollToBottom();
+        }
+
+        // 按Enter发送消息
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // 页面加载后自动聚焦到输入框
+        window.onload = function() {
+            document.getElementById('userInput').focus();
+        };
+    </script>
+</body>
+</html>
