@@ -1,0 +1,20 @@
+{
+  "name": "bear-bear-vercel",
+  "version": "1.0.0",
+  "description": "贝贝熊AI聊天机器人 - Vercel版",
+  "main": "api/bear.js",
+  "scripts": {
+    "start": "node api/bear.js",
+    "dev": "node api/bear.js",
+    "vercel-build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["deepseek", "ai", "chatbot", "bear"],
+  "author": "贝贝熊保护协会",
+  "license": "MIT"
+}
